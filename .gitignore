@@ -1,0 +1,11 @@
+# Unrelated local workspace files (not part of this repo)
+*.pdf
+*.docx
+create_business_ppt.py
+gpc-guide.html
+C360-GDPR-TCF-Engineering-Brief.*
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

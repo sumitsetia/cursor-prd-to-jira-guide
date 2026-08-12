@@ -1,0 +1,51 @@
+---
+description: Convert Confluence PRDs to WBD Jira backlogs (Feature → Capability → Epic → Story)
+alwaysApply: false
+---
+
+# PRD → Jira Backlog (WBD)
+
+When the user shares a Confluence PRD and asks to create Jira issues, follow this workflow.
+
+## Hierarchy (strict order)
+
+Initiative → **Feature** → **Capability** → **Epic** → Story/Task
+
+- 1 PRD ≈ 1 Feature
+- Product owns Feature & Capability; Engineering owns Epic & below
+- Create **top-down**: Feature → Capabilities → Epics → Stories (parents before children)
+
+## Mandatory workflow
+
+1. Fetch PRD via `getConfluencePage` (markdown)
+2. Ask for: project key, parent Initiative (if any), depth (Feature+Cap / +Epic / +Story), tracking label
+3. Analyze internally — do NOT create yet
+4. Present full tree breakdown; **wait for user approval**
+5. Create issues top-down with `createJiraIssue`, setting `parent` to each parent key
+6. Return summary with browse links
+
+## Breakdown rules
+
+- **Capabilities:** 3–7 deliverable chunks aligned to quarterly KRs; acceptance criteria required
+- **Epics:** execution containers under Capabilities; eng-owned; Definition of Ready in description
+- **Stories:** only when user requests; testable acceptance criteria; hold sub-tasks for second pass
+- Do not invent requirements — flag PRD gaps instead
+
+## Required description content
+
+Every issue needs a self-contained description (not link-only):
+- PRD link + 3–5 line synced summary
+- Feature: Problem, Opportunity, Impact, Use Cases, Success Metrics
+- Capability: Quarterly KR, Requirements, Acceptance Criteria
+- Epic: Requirements, Acceptance Criteria, Definition of Ready
+- Story: User story format + acceptance criteria
+
+## Field standards
+
+Follow WBD Jira Field Standards. If creation fails on required custom fields, use `getJiraIssueTypeMetaWithFields` and ask the user.
+
+## References
+
+- Confluence guide: PRD → Jira Backlog — Cursor Agent Guide
+- C360: Product — PRDs and Jira Best Practices
+- Field matrix: Jira Field Standards — Required Fields by Level
