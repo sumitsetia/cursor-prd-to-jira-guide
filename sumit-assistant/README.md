@@ -90,3 +90,33 @@ Who: Data leadership
 How: Export from Snowflake, attach xlsx
 Deadline: 2026-09-05
 ```
+
+---
+
+## Shortcuts in Cursor
+
+Type `/` in Agent chat to use these slash commands:
+
+| Command | What it does |
+|---------|----------------|
+| `/add-reminder` | Add a new item (asks for missing fields) |
+| `/list-reminders` | Show all open items |
+| `/mark-reminder-done` | Mark an item complete |
+
+**Examples:**
+
+```
+/add-reminder What: Review Q3 roadmap | When: Before Monday standup | Who: Product team | How: Read Confluence doc and leave comments | Deadline: 2026-09-01
+```
+
+```
+/list-reminders
+```
+
+```
+/mark-reminder-done REQ-001
+```
+
+**Keyboard shortcut:** `Cmd+Shift+R` opens Agent chat — then type `/add-reminder`.
+
+Commands live in `~/.cursor/commands/` (all projects) and `.cursor/commands/` (this repo).
