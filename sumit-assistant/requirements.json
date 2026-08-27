@@ -14,6 +14,16 @@
       "how": "PRD review meeting",
       "deadline": "2026-08-31",
       "status": "open"
+    },
+    {
+      "id": "REQ-002",
+      "created": "2026-08-27",
+      "what": "Mosaic C360 Converged for Consent / Improved Consent",
+      "when": "Monday August 31 2026",
+      "who": "Product Team",
+      "how": "PRD review meeting",
+      "deadline": "2026-08-31",
+      "status": "open"
     }
   ]
 }
