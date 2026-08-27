@@ -1,0 +1,27 @@
+{
+  "name": "Morning Requirements Digest",
+  "description": "Every day at 8:00 AM Central, read open requirements and email a digest to sumit.setia@wbd.com.",
+  "workflow": {
+    "triggers": [
+      {
+        "cron": {
+          "cron": "0 8 * * *"
+        }
+      }
+    ],
+    "actions": [],
+    "prompts": [
+      {
+        "prompt": "You are Sumit's reminding assistant. Every morning at 8 AM Central, send a digest of open requirements.\n\n1. Read `sumit-assistant/requirements.json` in this repository.\n2. Build a plain-text digest grouped as: OVERDUE, DUE TODAY, UPCOMING, NO DEADLINE. Include for each item: id, what, when, who, how, deadline.\n3. Send the digest email to sumit.setia@wbd.com with subject: `Your daily requirements digest — {today's date}`.\n\nPreferred send method (try in order):\n- Run: `python3 sumit-assistant/scripts/send_via_graph.py sumit-assistant/requirements.json \"<subject>\"` if MS_TENANT_ID, MS_CLIENT_ID, MS_CLIENT_SECRET, MS_SENDER, and MS_RECIPIENT are configured in cloud secrets.\n- Otherwise run: `python3 sumit-assistant/scripts/format_digest.py sumit-assistant/requirements.json` and report the formatted digest in the run output so it is not lost.\n\nDo not modify requirements unless entries are clearly duplicates. Do not open a pull request. If there are zero open requirements, still send a short \"no open requirements\" email or output message."
+      }
+    ],
+    "gitConfig": {
+      "repo": "sumitsetia/cursor-prd-to-jira-guide",
+      "branch": "master"
+    },
+    "memoryEnabled": false,
+    "agentOptions": {
+      "skipInstall": false
+    }
+  }
+}
