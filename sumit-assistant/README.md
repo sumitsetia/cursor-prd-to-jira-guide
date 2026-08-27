@@ -45,9 +45,9 @@ You are Sumit's reminding assistant. Every morning at 8 AM Central, send a Slack
 1. Read `sumit-assistant/requirements.json` in this repository.
 2. Run `python3 sumit-assistant/scripts/format_digest_slack.py sumit-assistant/requirements.json` to build the message.
 3. Use Send to Slack to deliver the digest. Prefer a DM to Sumit (automation owner).
-4. Lead with a one-line summary (count of open items, anything overdue or due today).
+4. Lead with a one-line summary (count of open items, count overdue).
 
-Group items as: OVERDUE, DUE TODAY, UPCOMING, NO DEADLINE. Include for each: id, what, when, who, how, deadline.
+The script sorts by deadline (soonest first) and marks overdue items with 🔴 RED. Include for each: id, what, when, who, how, deadline.
 
 Do not modify requirements unless entries are clearly duplicates. Do not open a pull request. If there are zero open requirements, still send a short "no open requirements" Slack message.
 ```
@@ -101,7 +101,7 @@ Type `/` in Agent chat to use these slash commands:
 |---------|----------------|
 | `/add-reminder` | Add a new item (asks for missing fields) |
 | `/list-reminders` | Show all open items |
-| `/mark-reminder-done` | Mark an item complete |
+| `/mark-reminder-done` | Remove a completed item from the list |
 
 **Examples:**
 
@@ -114,9 +114,13 @@ Type `/` in Agent chat to use these slash commands:
 ```
 
 ```
-/mark-reminder-done REQ-001
+/mark-reminder-done Fraud Detection PRD
 ```
+
+Or say naturally: *"Fraud Detection PRD is completed"*
 
 **Keyboard shortcut:** `Cmd+Shift+R` opens Agent chat — then type `/add-reminder`.
 
-Each `/add-reminder` or `/mark-reminder-done` automatically **commits and pushes** `requirements.json` to GitHub for the Slack automation.
+Each `/add-reminder` or `/mark-reminder-done` automatically **commits and pushes** to GitHub.
+
+**Notifications:** Sorted by deadline (soonest first). Overdue items show 🔴 RED. Completed tasks are **removed** from the list.

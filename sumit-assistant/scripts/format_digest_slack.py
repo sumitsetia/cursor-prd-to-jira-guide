@@ -15,31 +15,31 @@ def parse_date(value: str):
     return None
 
 
+def deadline_sort_key(item: dict):
+    deadline_raw = item.get("deadline", "").strip()
+    if not deadline_raw or deadline_raw.lower() in {"none", "n/a", "tbd"}:
+        return (1, date.max)
+    parsed = parse_date(deadline_raw)
+    if parsed is None:
+        return (1, date.max)
+    return (0, parsed)
+
+
+def is_overdue(item: dict, today: date) -> bool:
+    deadline_raw = item.get("deadline", "").strip()
+    parsed = parse_date(deadline_raw)
+    return parsed is not None and parsed < today
+
+
 def main() -> None:
     path = sys.argv[1]
     with open(path, encoding="utf-8") as f:
         data = json.load(f)
 
-    requirements = data.get("requirements", [])
-    open_items = [r for r in requirements if r.get("status", "open") != "done"]
+    open_items = [r for r in data.get("requirements", []) if r.get("status", "open") != "done"]
+    open_items.sort(key=deadline_sort_key)
     today = date.today()
-
-    overdue, due_today, upcoming, no_deadline = [], [], [], []
-
-    for item in open_items:
-        deadline_raw = item.get("deadline", "").strip()
-        if not deadline_raw or deadline_raw.lower() in {"none", "n/a", "tbd"}:
-            no_deadline.append(item)
-            continue
-        deadline = parse_date(deadline_raw)
-        if deadline is None:
-            no_deadline.append(item)
-        elif deadline < today:
-            overdue.append(item)
-        elif deadline == today:
-            due_today.append(item)
-        else:
-            upcoming.append(item)
+    overdue_count = sum(1 for item in open_items if is_overdue(item, today))
 
     lines = [
         f"*Good morning, Sumit!* :sunrise:",
@@ -47,27 +47,28 @@ def main() -> None:
         "",
     ]
 
-    def section(title: str, items: list[dict]) -> None:
-        if not items:
-            return
-        lines.append(f"*{title}*")
-        for item in items:
-            req_id = item.get("id", "?")
-            lines.append(f"• `[{req_id}]` *{item.get('what', '(no description)')}*")
-            lines.append(f"  _When:_ {item.get('when', '—')}")
-            lines.append(f"  _For:_ {item.get('who', '—')}")
-            lines.append(f"  _How:_ {item.get('how', '—')}")
-            lines.append(f"  _Due:_ *{item.get('deadline', '—')}*")
-            lines.append("")
+    if overdue_count:
+        lines.append(f"🔴 *{overdue_count} overdue* — sorted by deadline (soonest first).")
         lines.append("")
-
-    section("OVERDUE", overdue)
-    section("DUE TODAY", due_today)
-    section("UPCOMING", upcoming)
-    section("NO DEADLINE", no_deadline)
 
     if not open_items:
         lines.append("_No open requirements. Add new ones anytime in Cursor._")
+    else:
+        lines.append("*Open requirements* _(soonest deadline first)_")
+        lines.append("")
+        for item in open_items:
+            req_id = item.get("id", "?")
+            overdue = is_overdue(item, today)
+            prefix = "🔴 " if overdue else ""
+            lines.append(f"• {prefix}`[{req_id}]` *{item.get('what', '(no description)')}*")
+            lines.append(f"  _When:_ {item.get('when', '—')}")
+            lines.append(f"  _For:_ {item.get('who', '—')}")
+            lines.append(f"  _How:_ {item.get('how', '—')}")
+            if overdue:
+                lines.append(f"  _Due:_ 🔴 *{item.get('deadline', '—')}* _(OVERDUE)_")
+            else:
+                lines.append(f"  _Due:_ *{item.get('deadline', '—')}*")
+            lines.append("")
 
     lines.append("—")
     lines.append("_Managed by your Cursor reminding assistant._")

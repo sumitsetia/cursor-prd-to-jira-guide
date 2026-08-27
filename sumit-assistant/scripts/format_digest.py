@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Format requirements.json into a plain-text email body."""
+"""Format requirements.json into a plain-text digest."""
 
 import json
 import sys
@@ -15,34 +15,30 @@ def parse_date(value: str):
     return None
 
 
+def deadline_sort_key(item: dict):
+    deadline_raw = item.get("deadline", "").strip()
+    if not deadline_raw or deadline_raw.lower() in {"none", "n/a", "tbd"}:
+        return (1, date.max)
+    parsed = parse_date(deadline_raw)
+    if parsed is None:
+        return (1, date.max)
+    return (0, parsed)
+
+
+def is_overdue(item: dict, today: date) -> bool:
+    deadline_raw = item.get("deadline", "").strip()
+    parsed = parse_date(deadline_raw)
+    return parsed is not None and parsed < today
+
+
 def main() -> None:
     path = sys.argv[1]
     with open(path, encoding="utf-8") as f:
         data = json.load(f)
 
-    requirements = data.get("requirements", [])
-    open_items = [r for r in requirements if r.get("status", "open") != "done"]
+    open_items = [r for r in data.get("requirements", []) if r.get("status", "open") != "done"]
+    open_items.sort(key=deadline_sort_key)
     today = date.today()
-
-    overdue = []
-    due_today = []
-    upcoming = []
-    no_deadline = []
-
-    for item in open_items:
-        deadline_raw = item.get("deadline", "").strip()
-        if not deadline_raw or deadline_raw.lower() in {"none", "n/a", "tbd"}:
-            no_deadline.append(item)
-            continue
-        deadline = parse_date(deadline_raw)
-        if deadline is None:
-            no_deadline.append(item)
-        elif deadline < today:
-            overdue.append(item)
-        elif deadline == today:
-            due_today.append(item)
-        else:
-            upcoming.append(item)
 
     lines = [
         "Good morning, Sumit!",
@@ -51,28 +47,22 @@ def main() -> None:
         "",
     ]
 
-    def section(title: str, items: list[dict]) -> None:
-        if not items:
-            return
-        lines.append(title)
-        lines.append("-" * len(title))
-        for item in items:
+    if not open_items:
+        lines.append("No open requirements. Add new ones anytime in Cursor.")
+    else:
+        lines.append("Open requirements (soonest deadline first):")
+        lines.append("")
+        for item in open_items:
             req_id = item.get("id", "?")
-            lines.append(f"[{req_id}] {item.get('what', '(no description)')}")
+            overdue = is_overdue(item, today)
+            marker = "[OVERDUE] " if overdue else ""
+            lines.append(f"{marker}[{req_id}] {item.get('what', '(no description)')}")
             lines.append(f"  When: {item.get('when', '—')}")
             lines.append(f"  For:  {item.get('who', '—')}")
             lines.append(f"  How:  {item.get('how', '—')}")
-            lines.append(f"  Due:  {item.get('deadline', '—')}")
+            due = item.get("deadline", "—")
+            lines.append(f"  Due:  {due}{'  << OVERDUE' if overdue else ''}")
             lines.append("")
-        lines.append("")
-
-    section("OVERDUE", overdue)
-    section("DUE TODAY", due_today)
-    section("UPCOMING", upcoming)
-    section("NO DEADLINE", no_deadline)
-
-    if not open_items:
-        lines.append("No open requirements. Add new ones anytime in Cursor.")
 
     lines.extend(
         [

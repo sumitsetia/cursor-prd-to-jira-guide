@@ -24,7 +24,7 @@ Keep both files in sync whenever adding or updating requirements.
 | How to do | `how` | Approach, tools, or steps |
 | Deadline | `deadline` | Use `YYYY-MM-DD` when possible; `TBD` if unknown |
 
-Also set: `id` (REQ-001, REQ-002, …), `created` (today, YYYY-MM-DD), `status` (`open` | `done`).
+Also set: `id` (REQ-001, REQ-002, …), `created` (today, YYYY-MM-DD), `status`: `open`.
 
 ## When user adds a requirement
 
@@ -35,14 +35,23 @@ Also set: `id` (REQ-001, REQ-002, …), `created` (today, YYYY-MM-DD), `status` 
 5. Confirm with a brief summary table of the saved entry and push status.
 6. Do not delete or overwrite existing entries unless the user asks.
 
-## When user marks something done
+## When user completes a task
 
-Set `status` to `done` on the matching `id` or `what` text, then **commit and push** `sumit-assistant/requirements.json`.
+When the user says a task name or `REQ-###` is **completed**, **done**, or **finished**:
+
+1. Match by id or partial `what` name (case-insensitive).
+2. **Remove** the entry from both files (do not keep with `status: done`).
+3. **Commit and push** `sumit-assistant/requirements.json`.
+4. Confirm what was removed.
+
+Use `/mark-reminder-done` or natural language (e.g. "Fraud Detection PRD is completed").
 
 ## Morning digest (Slack)
 
-- **Primary:** Cursor Automation at **8:00 AM Central** reads `sumit-assistant/requirements.json` and sends a **Slack** digest via the **Send to Slack** tool (DM or private channel).
-- **Optional local fallback:** `sumit-assistant/scripts/send_slack_webhook.py` if `SLACK_WEBHOOK_URL` is set.
+- **Primary:** Cursor Automation at **8:00 AM Central** reads `sumit-assistant/requirements.json` and sends a **Slack** digest.
+- **Sort:** By deadline, soonest first (no-deadline items last).
+- **Overdue:** Mark with 🔴 RED indicators when deadline has passed.
+- **Script:** `sumit-assistant/scripts/format_digest_slack.py`
 
 ## Example user message
 
