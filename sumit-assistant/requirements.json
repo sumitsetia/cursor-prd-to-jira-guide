@@ -4,5 +4,16 @@
     "created": "2026-08-27",
     "description": "Personal reminding assistant — requirements tracked by Cursor"
   },
-  "requirements": []
+  "requirements": [
+    {
+      "id": "REQ-001",
+      "created": "2026-08-27",
+      "what": "Fraud Detection PRD",
+      "when": "Monday August 31 2026",
+      "who": "Product Team",
+      "how": "PRD review meeting",
+      "deadline": "2026-08-31",
+      "status": "open"
+    }
+  ]
 }
