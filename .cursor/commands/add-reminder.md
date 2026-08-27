@@ -30,6 +30,19 @@ For each new entry set:
 - `created`: today as `YYYY-MM-DD`
 - `status`: `open`
 
+## Push to GitHub (required)
+
+After saving, commit and push so the morning Slack automation picks up the change:
+
+```bash
+git add sumit-assistant/requirements.json
+git commit -m "Add <REQ-ID>: <short what summary>"
+git push origin master
+```
+
+- Only commit `sumit-assistant/requirements.json` — do not stage unrelated files.
+- If push fails, report the error and still confirm the local save.
+
 ## Confirm
 
-Reply with a brief summary table of the saved entry. Do not delete existing entries.
+Reply with a brief summary table of the saved entry **and** the commit hash or push status. Do not delete existing entries.

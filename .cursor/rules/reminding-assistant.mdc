@@ -31,12 +31,13 @@ Also set: `id` (REQ-001, REQ-002, …), `created` (today, YYYY-MM-DD), `status` 
 1. Read `requirements.json`.
 2. Ask only for missing required fields (one short message if several are missing).
 3. Append the new entry; increment `id` from the highest existing REQ number.
-4. Confirm with a brief summary table of the saved entry.
-5. Do not delete or overwrite existing entries unless the user asks.
+4. **Commit and push** `sumit-assistant/requirements.json` to `origin/master` so the Slack automation picks it up.
+5. Confirm with a brief summary table of the saved entry and push status.
+6. Do not delete or overwrite existing entries unless the user asks.
 
 ## When user marks something done
 
-Set `status` to `done` on the matching `id` or `what` text.
+Set `status` to `done` on the matching `id` or `what` text, then **commit and push** `sumit-assistant/requirements.json`.
 
 ## Morning digest (Slack)
 

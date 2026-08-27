@@ -119,4 +119,4 @@ Type `/` in Agent chat to use these slash commands:
 
 **Keyboard shortcut:** `Cmd+Shift+R` opens Agent chat — then type `/add-reminder`.
 
-Commands live in `~/.cursor/commands/` (all projects) and `.cursor/commands/` (this repo).
+Each `/add-reminder` or `/mark-reminder-done` automatically **commits and pushes** `requirements.json` to GitHub for the Slack automation.
