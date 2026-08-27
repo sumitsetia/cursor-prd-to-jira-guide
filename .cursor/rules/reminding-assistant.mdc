@@ -38,10 +38,10 @@ Also set: `id` (REQ-001, REQ-002, …), `created` (today, YYYY-MM-DD), `status` 
 
 Set `status` to `done` on the matching `id` or `what` text.
 
-## Morning digest
+## Morning digest (Slack)
 
-- **Primary:** Cursor Automation at **8:00 AM Central** reads `sumit-assistant/requirements.json` and emails **sumit.setia@wbd.com** (via Microsoft Graph when cloud secrets are set).
-- **Fallback:** Local Outlook script at `Documents/sumit_assistant/scripts/send_morning_digest.sh` if launchd is loaded on the Mac.
+- **Primary:** Cursor Automation at **8:00 AM Central** reads `sumit-assistant/requirements.json` and sends a **Slack** digest via the **Send to Slack** tool (DM or private channel).
+- **Optional local fallback:** `sumit-assistant/scripts/send_slack_webhook.py` if `SLACK_WEBHOOK_URL` is set.
 
 ## Example user message
 

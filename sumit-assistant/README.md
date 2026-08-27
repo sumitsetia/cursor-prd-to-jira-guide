@@ -1,12 +1,12 @@
 # Sumit's Reminding Assistant (repo mirror)
 
-This folder mirrors the OneDrive tracker so **Cursor Automations** (cloud) can read requirements.
+Personal requirement tracker with a **daily Slack digest at 8:00 AM Central**.
 
 | Path | Purpose |
 |------|---------|
 | `requirements.json` | Requirements (synced with OneDrive) |
-| `scripts/format_digest.py` | Formats the email body |
-| `scripts/send_via_graph.py` | Sends email via Microsoft Graph (cloud) |
+| `scripts/format_digest_slack.py` | Formats the Slack message |
+| `scripts/send_slack_webhook.py` | Optional local send via Slack webhook |
 | `automation-morning-digest.prefill.json` | Draft for Cursor Automation editor |
 
 ## OneDrive source of truth (local)
@@ -15,33 +15,78 @@ This folder mirrors the OneDrive tracker so **Cursor Automations** (cloud) can r
 
 When adding requirements in Cursor, both files are updated.
 
-## Cursor Automation setup
+---
 
-1. Commit and push this folder to `sumitsetia/cursor-prd-to-jira-guide`.
-2. Open the **Agents Window** and say: **Create a Cursor automation from `sumit-assistant/automation-morning-digest.prefill.json`**
-3. In the editor, set schedule timezone to **Central Time (CST/CDT)** and confirm cron **8:00 AM daily**.
-4. Attach repository `sumitsetia/cursor-prd-to-jira-guide` on branch `master`.
+## Cursor Automation setup (recommended)
 
-## Email from cloud (optional Graph setup)
+### Step 1 — Connect Slack to Cursor
 
-Add these secrets in [Cursor Cloud Agents settings](https://cursor.com/dashboard?tab=cloud-agents):
+1. Go to [cursor.com/dashboard](https://cursor.com/dashboard) → **Integrations**
+2. Connect **Slack** and authorize your WBD workspace
+3. Confirm the Cursor app can post messages
 
-| Secret | Example |
-|--------|---------|
-| `MS_TENANT_ID` | WBD tenant ID |
-| `MS_CLIENT_ID` | Azure app client ID |
-| `MS_CLIENT_SECRET` | Azure app secret |
-| `MS_SENDER` | `sumit.setia@wbd.com` |
-| `MS_RECIPIENT` | `sumit.setia@wbd.com` |
+### Step 2 — Create the automation
 
-Azure app needs **Application** permission `Mail.Send` with admin consent.
+Open **[cursor.com/automations/new](https://cursor.com/automations/new)** and configure:
 
-Without Graph secrets, the automation still runs and prints the digest in the run log.
+| Field | Value |
+|-------|-------|
+| **Name** | Morning Requirements Digest (Slack) |
+| **Trigger** | Scheduled → **8:00 AM** → **Central Time** → **Every day** |
+| **Repository** | `sumitsetia/cursor-prd-to-jira-guide` on branch `master` |
+| **Tools** | Enable **Send to Slack** |
+| **Slack destination** | **DM yourself** (easiest) or a private channel like `#sumit-reminders` |
 
-## Local fallback (Outlook on Mac)
+### Step 3 — Paste this prompt
 
-If your Mac is on at 8 AM, the OneDrive launchd job can still send via Outlook:
+```
+You are Sumit's reminding assistant. Every morning at 8 AM Central, send a Slack digest of open requirements.
+
+1. Read `sumit-assistant/requirements.json` in this repository.
+2. Run `python3 sumit-assistant/scripts/format_digest_slack.py sumit-assistant/requirements.json` to build the message.
+3. Use Send to Slack to deliver the digest. Prefer a DM to Sumit (automation owner).
+4. Lead with a one-line summary (count of open items, anything overdue or due today).
+
+Group items as: OVERDUE, DUE TODAY, UPCOMING, NO DEADLINE. Include for each: id, what, when, who, how, deadline.
+
+Do not modify requirements unless entries are clearly duplicates. Do not open a pull request. If there are zero open requirements, still send a short "no open requirements" Slack message.
+```
+
+Save and **Activate**.
+
+---
+
+## Optional local fallback (Slack webhook)
+
+If you also want reminders when your Mac runs locally (without waiting for cloud automation):
+
+1. In Slack: **Apps** → **Incoming Webhooks** → create webhook for a DM or private channel
+2. Save the URL:
 
 ```bash
-bash "/Users/ssetia/Library/CloudStorage/OneDrive-WarnerBros.Discovery/Documents/sumit_assistant/scripts/send_morning_digest.sh"
+echo 'SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL' >> ~/.sumit-assistant.env
+```
+
+3. Test:
+
+```bash
+python3 sumit-assistant/scripts/send_slack_webhook.py sumit-assistant/requirements.json
+```
+
+---
+
+## Add requirements
+
+Tell Cursor in chat:
+
+- **What to do** / **When to do** / **Who is this for** / **How to do** / **Deadline**
+
+Example:
+
+```
+What: Send weekly C360 metrics deck
+When: Every Friday before noon
+Who: Data leadership
+How: Export from Snowflake, attach xlsx
+Deadline: 2026-09-05
 ```
